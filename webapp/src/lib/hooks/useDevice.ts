@@ -26,7 +26,17 @@ export function useDevice(deviceId: string) {
     fetchDevice();
 
     const supabase = createClient();
-    const channelName = `device-${deviceId}-${Date.now()}`;
+    const channelName = `device-${deviceId}`;
+
+    // Remove any existing channel with the same name first
+    // (handles React Strict Mode double-mount with singleton client)
+    const existing = supabase.getChannels().find(
+      (ch) => ch.topic === `realtime:${channelName}`
+    );
+    if (existing) {
+      supabase.removeChannel(existing);
+    }
+
     const channel = supabase
       .channel(channelName)
       .on(
@@ -40,8 +50,13 @@ export function useDevice(deviceId: string) {
         (payload) => {
           if (payload.new) setDevice(payload.new as Device);
         }
-      )
-      .subscribe();
+      );
+
+    channel.subscribe((status) => {
+      if (status !== 'SUBSCRIBED') {
+        console.log(`Realtime unavailable for ${channelName}:`, status);
+      }
+    });
 
     // Also refresh periodically to update online status
     const interval = setInterval(fetchDevice, 30_000);

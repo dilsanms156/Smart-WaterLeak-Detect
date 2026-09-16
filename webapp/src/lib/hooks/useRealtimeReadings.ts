@@ -24,7 +24,15 @@ export function useRealtimeReadings(deviceId: string) {
     fetchLatest();
 
     const supabase = createClient();
-    const channelName = `sensor-readings-${Date.now()}`;
+    const channelName = `sensor-readings-${deviceId}`;
+
+    const existing = supabase.getChannels().find(
+      (ch) => ch.topic === `realtime:${channelName}`
+    );
+    if (existing) {
+      supabase.removeChannel(existing);
+    }
+
     const channel = supabase
       .channel(channelName)
       .on(
@@ -38,8 +46,13 @@ export function useRealtimeReadings(deviceId: string) {
         (payload) => {
           setLatestReading(payload.new as SensorReading);
         }
-      )
-      .subscribe();
+      );
+
+    channel.subscribe((status) => {
+      if (status !== 'SUBSCRIBED') {
+        console.log(`Realtime unavailable for ${channelName}:`, status);
+      }
+    });
 
     return () => {
       supabase.removeChannel(channel);

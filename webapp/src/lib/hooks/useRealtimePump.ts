@@ -31,7 +31,15 @@ export function useRealtimePump(deviceId: string) {
     fetchPumpEvents();
 
     const supabase = createClient();
-    const channelName = `pump-events-${Date.now()}`;
+    const channelName = `pump-events-${deviceId}`;
+
+    const existing = supabase.getChannels().find(
+      (ch) => ch.topic === `realtime:${channelName}`
+    );
+    if (existing) {
+      supabase.removeChannel(existing);
+    }
+
     const channel = supabase
       .channel(channelName)
       .on(
@@ -47,8 +55,13 @@ export function useRealtimePump(deviceId: string) {
           setPumpEvents((prev) => [newEvent, ...prev].slice(0, 50));
           setCurrentPumpState(newEvent.new_state);
         }
-      )
-      .subscribe();
+      );
+
+    channel.subscribe((status) => {
+      if (status !== 'SUBSCRIBED') {
+        console.log(`Realtime unavailable for ${channelName}:`, status);
+      }
+    });
 
     return () => {
       supabase.removeChannel(channel);

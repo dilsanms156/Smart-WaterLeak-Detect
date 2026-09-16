@@ -35,7 +35,15 @@ export function useRealtimeLeaks(deviceId: string) {
     fetchLeaks();
 
     const supabase = createClient();
-    const channelName = `leak-events-${Date.now()}`;
+    const channelName = `leak-events-${deviceId}`;
+
+    const existing = supabase.getChannels().find(
+      (ch) => ch.topic === `realtime:${channelName}`
+    );
+    if (existing) {
+      supabase.removeChannel(existing);
+    }
+
     const channel = supabase
       .channel(channelName)
       .on(
@@ -49,8 +57,13 @@ export function useRealtimeLeaks(deviceId: string) {
         () => {
           fetchLeaks();
         }
-      )
-      .subscribe();
+      );
+
+    channel.subscribe((status) => {
+      if (status !== 'SUBSCRIBED') {
+        console.log(`Realtime unavailable for ${channelName}:`, status);
+      }
+    });
 
     return () => {
       supabase.removeChannel(channel);
