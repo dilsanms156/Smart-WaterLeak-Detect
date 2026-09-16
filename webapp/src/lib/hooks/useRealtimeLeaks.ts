@@ -35,8 +35,9 @@ export function useRealtimeLeaks(deviceId: string) {
     fetchLeaks();
 
     const supabase = createClient();
+    const channelName = `leak-events-${Date.now()}`;
     const channel = supabase
-      .channel('leak-events-realtime')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {

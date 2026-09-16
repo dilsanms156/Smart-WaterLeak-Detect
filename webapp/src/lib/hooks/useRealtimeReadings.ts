@@ -24,8 +24,9 @@ export function useRealtimeReadings(deviceId: string) {
     fetchLatest();
 
     const supabase = createClient();
+    const channelName = `sensor-readings-${Date.now()}`;
     const channel = supabase
-      .channel('sensor-readings-realtime')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {

@@ -31,8 +31,9 @@ export function useRealtimePump(deviceId: string) {
     fetchPumpEvents();
 
     const supabase = createClient();
+    const channelName = `pump-events-${Date.now()}`;
     const channel = supabase
-      .channel('pump-events-realtime')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {

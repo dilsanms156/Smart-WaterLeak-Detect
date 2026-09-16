@@ -26,8 +26,9 @@ export function useDevice(deviceId: string) {
     fetchDevice();
 
     const supabase = createClient();
+    const channelName = `device-${deviceId}-${Date.now()}`;
     const channel = supabase
-      .channel(`device-realtime-${deviceId}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
