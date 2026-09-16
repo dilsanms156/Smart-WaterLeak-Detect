@@ -30,12 +30,14 @@ export async function GET(request: NextRequest) {
   const supabase = createServerClient();
 
   try {
-    // Get the oldest pending command for this device
+    // Get the oldest valid pending command for this device (created within last 60s)
+    const cutoff = new Date(Date.now() - 60_000).toISOString();
     const { data: command, error } = await supabase
       .from('pump_commands')
-      .select('*')
+      .select('id, command, created_at')
       .eq('device_id', deviceId)
       .eq('status', 'pending')
+      .gte('created_at', cutoff)
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle();
@@ -44,14 +46,6 @@ export async function GET(request: NextRequest) {
       console.error('[COMMAND] Query error:', error.message, error.details, error.hint);
       return errorResponse(`Command query failed: ${error.message}`, 500);
     }
-
-    // Expire any stale pending commands (older than 60 seconds)
-    await supabase
-      .from('pump_commands')
-      .update({ status: 'expired' })
-      .eq('device_id', deviceId)
-      .eq('status', 'pending')
-      .lt('created_at', new Date(Date.now() - 60_000).toISOString());
 
     if (!command) {
       return successResponse({ command: null });

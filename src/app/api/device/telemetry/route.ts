@@ -74,29 +74,30 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Handle leak events
-    if (data.leakDetected && data.leakLocation !== 'NONE') {
+    const locationStr = data.leakLocation || 'NONE';
+    if (data.leakDetected && locationStr !== 'NONE') {
       // Check if there's already an active leak event for this location
       const { data: existingLeak } = await supabase
         .from('leak_events')
         .select('id')
         .eq('device_id', data.deviceId)
         .eq('status', 'active')
-        .eq('location', data.leakLocation)
+        .eq('location', locationStr)
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (!existingLeak) {
         // Determine flow difference based on location
         let flowDiff = 0;
-        if (data.leakLocation.includes('S1 AND S2')) {
+        if (locationStr.includes('S1 AND S2')) {
           flowDiff = data.sensor1Flow - data.sensor2Flow;
-        } else if (data.leakLocation.includes('S2 AND S3')) {
+        } else if (locationStr.includes('S2 AND S3')) {
           flowDiff = data.sensor2Flow - data.sensor3Flow;
         }
 
         await supabase.from('leak_events').insert({
           device_id: data.deviceId,
-          location: data.leakLocation,
+          location: locationStr,
           sensor1_flow: data.sensor1Flow,
           sensor2_flow: data.sensor2Flow,
           sensor3_flow: data.sensor3Flow,

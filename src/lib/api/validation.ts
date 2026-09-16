@@ -10,16 +10,16 @@ export const telemetrySchema = z.object({
   sensor2Flow: z.number().min(0),
   sensor3Flow: z.number().min(0),
   leakDetected: z.boolean(),
-  leakLocation: z.string(),
+  leakLocation: z.string().nullable().optional(),
   pumpState: z.boolean(),
   uptime: z.number().int().min(0),
 });
 
 export const heartbeatSchema = z.object({
   deviceId: z.string().min(1),
-  uptime: z.number().int().min(0),
-  pumpState: z.boolean(),
-  leakDetected: z.boolean(),
+  uptime: z.number().int().min(0).optional(),
+  pumpState: z.boolean().optional(),
+  leakDetected: z.boolean().optional(),
 });
 
 export const commandAckSchema = z.object({
