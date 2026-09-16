@@ -9,8 +9,9 @@
 .env.staging
 *.env
 
-# ESP32 credentials (NEVER commit)
-Hardware/waterPump/credentials.h
+# Exclude entire Hardware and Supabase directories
+Hardware/
+supabase_temp/
 
 # ── Node.js ──────────────────────────────────────────────────────────────────
 node_modules/
