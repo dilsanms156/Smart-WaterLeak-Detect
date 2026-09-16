@@ -15,8 +15,16 @@ export function PipelineVisualization({ reading, activeLeaks, isLoading }: Pipel
   const s2 = reading?.sensor2_flow || 0;
   const s3 = reading?.sensor3_flow || 0;
 
-  const leakS1S2 = activeLeaks.find(l => l.location === 'Between S1 and S2');
-  const leakS2S3 = activeLeaks.find(l => l.location === 'Between S2 and S3');
+  const leakS1S2 = activeLeaks.find(l => 
+    l.location === 'Between S1 and S2' || 
+    l.location === 'BETWEEN S1 AND S2' ||
+    (l.location && l.location.toUpperCase().includes('S1') && l.location.toUpperCase().includes('S2'))
+  );
+  const leakS2S3 = activeLeaks.find(l => 
+    l.location === 'Between S2 and S3' || 
+    l.location === 'BETWEEN S2 AND S3' ||
+    (l.location && l.location.toUpperCase().includes('S2') && l.location.toUpperCase().includes('S3'))
+  );
 
   return (
     <Card className="col-span-full shadow-xl bg-slate-900 border-slate-700/50">
