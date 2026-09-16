@@ -3,7 +3,7 @@
 // POST /api/device/command             — ESP32 acknowledges a command
 // =============================================================================
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { commandAckSchema } from '@/lib/api/validation';
 import {
@@ -48,12 +48,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (!command) {
-      return successResponse({ command: null });
+      return NextResponse.json({ success: true, command: null });
     }
 
-    return successResponse({
-      id: command.id,
+    return NextResponse.json({
+      success: true,
       command: command.command,
+      id: command.id,
       createdAt: command.created_at,
     });
   } catch (err) {
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
         .from('pump_commands')
         .select('command')
         .eq('id', data.id)
-        .single();
+        .maybeSingle();
 
       if (cmd) {
         await supabase.from('pump_events').insert({
