@@ -90,7 +90,9 @@ unsigned long lastTelemetry     = 0;
 unsigned long lastCommandPoll   = 0;
 unsigned long lastHeartbeat     = 0;
 unsigned long lastWifiReconnect = 0;
+unsigned long lastLedToggle     = 0;
 unsigned long bootTime          = 0;
+bool ledState = false;
 
 // =============================================================================
 // Relay Helpers (Active-LOW relay module)
@@ -425,6 +427,11 @@ void setup() {
   pumpState = false;
   Serial.println("[INIT] Relay initialised — pump OFF");
 
+  // ── Built-in LED ──────────────────────────────────────────────────────────
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+  Serial.println("[INIT] Built-in LED initialised");
+
   // ── Flow sensor pins with internal pull-ups ───────────────────────────────
   pinMode(SENSOR1_PIN, INPUT_PULLUP);
   pinMode(SENSOR2_PIN, INPUT_PULLUP);
@@ -459,6 +466,18 @@ void loop() {
 
   // ── Wi-Fi reconnection ────────────────────────────────────────────────────
   reconnectWiFiIfNeeded();
+
+  // ── LED blink: blink when WiFi connected, OFF when disconnected ──────────
+  if (WiFi.status() == WL_CONNECTED) {
+    if (now - lastLedToggle >= LED_BLINK_INTERVAL) {
+      lastLedToggle = now;
+      ledState = !ledState;
+      digitalWrite(LED_PIN, ledState ? HIGH : LOW);
+    }
+  } else {
+    digitalWrite(LED_PIN, LOW);
+    ledState = false;
+  }
 
   // The following network tasks only run when Wi-Fi is connected.
   // If Wi-Fi is down, the ESP32 continues local safety operation.

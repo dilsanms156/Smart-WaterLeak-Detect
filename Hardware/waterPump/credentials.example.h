@@ -9,8 +9,8 @@
 #define CREDENTIALS_H
 
 // Wi-Fi credentials
-#define WIFI_SSID       "YOUR_WIFI_SSID"
-#define WIFI_PASSWORD   "YOUR_WIFI_PASSWORD"
+#define WIFI_SSID       "HARSHA"
+#define WIFI_PASSWORD   "0000000000"
 
 // Backend server URL (your deployed Next.js app, no trailing slash)
 // Examples:

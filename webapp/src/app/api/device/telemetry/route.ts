@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // 1. Upsert device (create if first time, update last_seen)
-    await supabase
+    const { error: upsertError } = await supabase
       .from('devices')
       .upsert(
         {
@@ -52,6 +52,11 @@ export async function POST(request: NextRequest) {
         },
         { onConflict: 'device_id' }
       );
+
+    if (upsertError) {
+      console.error('[TELEMETRY] Device upsert error:', upsertError.message, upsertError.details, upsertError.hint);
+      return errorResponse(`Device upsert failed: ${upsertError.message}`, 500);
+    }
 
     // 2. Insert sensor reading
     const { error: readingError } = await supabase
@@ -64,8 +69,8 @@ export async function POST(request: NextRequest) {
       });
 
     if (readingError) {
-      console.error('[TELEMETRY] Insert reading error:', readingError.message);
-      return errorResponse('Database error', 500);
+      console.error('[TELEMETRY] Insert reading error:', readingError.message, readingError.details, readingError.hint);
+      return errorResponse(`Reading insert failed: ${readingError.message}`, 500);
     }
 
     // 3. Handle leak events

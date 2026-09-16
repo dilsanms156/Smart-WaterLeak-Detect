@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
       );
 
     if (error) {
-      console.error('[HEARTBEAT] Upsert error:', error.message);
-      return errorResponse('Database error', 500);
+      console.error('[HEARTBEAT] Upsert error:', error.message, error.details, error.hint);
+      return errorResponse(`Heartbeat failed: ${error.message}`, 500);
     }
 
     return successResponse({ ok: true });

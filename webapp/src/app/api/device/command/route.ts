@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (error) {
-      console.error('[COMMAND] Query error:', error.message);
-      return errorResponse('Database error', 500);
+      console.error('[COMMAND] Query error:', error.message, error.details, error.hint);
+      return errorResponse(`Command query failed: ${error.message}`, 500);
     }
 
     // Expire any stale pending commands (older than 60 seconds)

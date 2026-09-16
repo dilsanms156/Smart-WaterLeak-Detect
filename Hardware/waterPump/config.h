@@ -13,6 +13,10 @@
 #define SENSOR2_PIN   25    // YF-S401 Sensor 2 signal (yellow wire)
 #define SENSOR3_PIN   14    // YF-S401 Sensor 3 signal (yellow wire)
 #define RELAY_PIN     27    // Relay module IN signal
+#define LED_PIN       2     // Built-in LED (GPIO 2 on most ESP32 boards)
+
+// ── LED Blink Interval ──────────────────────────────────────────────────────
+#define LED_BLINK_INTERVAL    500   // Blink every 500ms when WiFi connected
 
 // ── YF-S401 Calibration ─────────────────────────────────────────────────────
 // The YF-S401 outputs pulses proportional to flow.
