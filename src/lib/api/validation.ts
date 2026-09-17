@@ -29,18 +29,18 @@ export const commandAckSchema = z.object({
 });
 
 export const pumpCommandSchema = z.object({
-  deviceId: z.string().min(1),
+  deviceId: z.string().optional().default('water-leak-device-01'),
   command: z.enum(['ON', 'OFF']),
 });
 
 export const readingsQuerySchema = z.object({
-  deviceId: z.string().min(1),
+  deviceId: z.string().optional().default('water-leak-device-01'),
   period: z.enum(['1h', '6h', '24h', '7d']).optional().default('1h'),
   limit: z.coerce.number().int().min(1).max(1000).optional().default(500),
 });
 
 export const leaksQuerySchema = z.object({
-  deviceId: z.string().optional(),
+  deviceId: z.string().optional().default('water-leak-device-01'),
   status: z.enum(['active', 'resolved', 'acknowledged']).optional(),
   limit: z.coerce.number().int().min(1).max(200).optional().default(50),
 });

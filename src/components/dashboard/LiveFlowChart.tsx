@@ -41,15 +41,15 @@ export function LiveFlowChart({ deviceId }: LiveFlowChartProps) {
 
       const { data: readings, error: supabaseError } = await supabase
         .from('sensor_readings')
-        .select('created_at, sensor1_flow, sensor2_flow, sensor3_flow')
+        .select('recorded_at, sensor1_flow, sensor2_flow, sensor3_flow')
         .eq('device_id', deviceId)
-        .gte('created_at', startTime.toISOString())
-        .order('created_at', { ascending: true });
+        .gte('recorded_at', startTime.toISOString())
+        .order('recorded_at', { ascending: true });
 
       if (supabaseError) throw supabaseError;
 
       const formattedData = readings.map(r => {
-        const d = new Date(r.created_at);
+        const d = new Date(r.recorded_at);
         const timeStr = timeRange === '7D' || timeRange === '24H' 
           ? `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
           : `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
@@ -84,7 +84,7 @@ export function LiveFlowChart({ deviceId }: LiveFlowChartProps) {
           { event: 'INSERT', schema: 'public', table: 'sensor_readings', filter: `device_id=eq.${deviceId}` },
           (payload) => {
             const r = payload.new;
-            const d = new Date(r.created_at);
+            const d = new Date(r.recorded_at || Date.now());
             const timeStr = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
             const newData = { time: timeStr, S1: r.sensor1_flow, S2: r.sensor2_flow, S3: r.sensor3_flow };
             
