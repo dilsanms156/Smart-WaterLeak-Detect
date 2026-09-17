@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "author": "Smart Water Leak System",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot1",
+      "top": -120,
+      "left": -180,
+      "attrs": { "label": "Sensor 1 (GPIO 13)" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot2",
+      "top": 0,
+      "left": -180,
+      "attrs": { "label": "Sensor 2 (GPIO 25)" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot3",
+      "top": 120,
+      "left": -180,
+      "attrs": { "label": "Sensor 3 (GPIO 14)" }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay1",
+      "top": -80,
+      "left": 220,
+      "attrs": { "label": "Pump Relay (GPIO 27 Active-LOW)" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 100,
+      "left": 220,
+      "attrs": { "color": "green", "label": "Status LED (GPIO 2)" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "pot1:SIG", "esp:D13", "yellow", [ "h0" ] ],
+    [ "pot2:SIG", "esp:D25", "yellow", [ "h0" ] ],
+    [ "pot3:SIG", "esp:D14", "yellow", [ "h0" ] ],
+    [ "relay1:IN", "esp:D27", "blue", [ "h0" ] ],
+    [ "led1:A", "esp:D2", "green", [ "h0" ] ],
+    [ "pot1:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "pot2:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "pot3:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "led1:C", "esp:GND.1", "black", [ "v0" ] ],
+    [ "relay1:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "pot1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "pot2:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "pot3:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "relay1:VCC", "esp:5V", "red", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
