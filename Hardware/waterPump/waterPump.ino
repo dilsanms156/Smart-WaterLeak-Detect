@@ -263,19 +263,30 @@ String buildUrl(const char* path) {
   return String(SERVER_URL) + path;
 }
 
-// POST JSON to the backend over HTTPS. Returns the HTTP status code, or -1 on failure.
+// POST JSON to the backend over HTTP or HTTPS. Returns the HTTP status code, or -1 on failure.
 int httpPost(const char* path, const String& jsonBody) {
   if (WiFi.status() != WL_CONNECTED) return -1;
 
-  WiFiClientSecure client;
-  client.setInsecure(); // Bypass CA validation for HTTPS communication
-
+  String fullUrl = buildUrl(path);
   HTTPClient http;
   http.setTimeout(HTTP_TIMEOUT_MS);
-  if (!http.begin(client, buildUrl(path))) {
+  bool started = false;
+
+  WiFiClientSecure secureClient;
+  WiFiClient plainClient;
+
+  if (fullUrl.startsWith("https://")) {
+    secureClient.setInsecure(); // Bypass CA validation for HTTPS communication
+    started = http.begin(secureClient, fullUrl);
+  } else {
+    started = http.begin(plainClient, fullUrl);
+  }
+
+  if (!started) {
     Serial.printf("[HTTP] POST %s begin failed\n", path);
     return -1;
   }
+
   http.addHeader("Content-Type", "application/json");
   http.addHeader("x-device-token", DEVICE_API_TOKEN);
 
@@ -287,20 +298,31 @@ int httpPost(const char* path, const String& jsonBody) {
   return status;
 }
 
-// GET from the backend over HTTPS. Writes the response body into `responseBody`.
+// GET from the backend over HTTP or HTTPS. Writes the response body into `responseBody`.
 // Returns the HTTP status code, or -1 on failure.
 int httpGet(const char* path, String& responseBody) {
   if (WiFi.status() != WL_CONNECTED) return -1;
 
-  WiFiClientSecure client;
-  client.setInsecure(); // Bypass CA validation for HTTPS communication
-
+  String fullUrl = buildUrl(path);
   HTTPClient http;
   http.setTimeout(HTTP_TIMEOUT_MS);
-  if (!http.begin(client, buildUrl(path))) {
+  bool started = false;
+
+  WiFiClientSecure secureClient;
+  WiFiClient plainClient;
+
+  if (fullUrl.startsWith("https://")) {
+    secureClient.setInsecure(); // Bypass CA validation for HTTPS communication
+    started = http.begin(secureClient, fullUrl);
+  } else {
+    started = http.begin(plainClient, fullUrl);
+  }
+
+  if (!started) {
     Serial.printf("[HTTP] GET %s begin failed\n", path);
     return -1;
   }
+
   http.addHeader("x-device-token", DEVICE_API_TOKEN);
 
   int status = http.GET();
